@@ -6,6 +6,19 @@ use App\Utils\Arr;
 
 class Request
 {
+    private const CONTENT_TYPE_FORM_DATA = 'multipart/form-data';
+
+    private array $data;
+
+    public function __construct()
+    {
+        $contentType = explode(';', $_SERVER['CONTENT_TYPE'])[0];
+
+        $this->data = $contentType === self::CONTENT_TYPE_FORM_DATA
+            ? $_POST
+            : json_decode(file_get_contents('php://input'), true);
+    }
+
     public static function getParsedUri(): array
     {
         return parse_url($_SERVER['REQUEST_URI']);
@@ -43,5 +56,10 @@ class Request
         }
 
         return $params;
+    }
+
+    public function all(): array
+    {
+        return $this->data;
     }
 }

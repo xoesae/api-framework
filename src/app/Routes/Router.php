@@ -115,4 +115,9 @@ class Router
     {
         $this->register('GET', $uri, $action);
     }
+
+    public function post(string $uri, string $action)
+    {
+        $this->register('POST', $uri, $action);
+    }
 }
