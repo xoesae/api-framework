@@ -1,0 +1,23 @@
+{
+    "name": "cjuniordev/api-framework",
+    "type": "project",
+    "scripts": {
+        "dev": "php -S localhost:8080 src/public/index.php",
+        "kill" :"bash kill.sh"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cjuniordev\\ApiFramework\\": "src/",
+            "App\\": "src/app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "cjuniordev",
+            "email": "carlosrogeriocr02@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    }
+}
