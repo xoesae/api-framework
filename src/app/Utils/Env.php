@@ -14,6 +14,8 @@ class Env {
         foreach ($rows as $row) {
             putenv($row);
         }
+
+        fclose($file);
     }
 
     public static function get(string $key, mixed $default = null): mixed
