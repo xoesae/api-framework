@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Requests\Request;
+use App\Models\BaseModel;
 
 class UserController
 {
@@ -13,6 +14,8 @@ class UserController
     public function index()
     {
         echo '<br> Hello World! <br>';
+
+        BaseModel::create([]);
     }
 
     public function store()
