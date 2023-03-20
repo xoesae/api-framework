@@ -22,7 +22,7 @@ class Env {
     {
         $value = getenv($key);
 
-        if ($value === false) {
+        if (!$value) {
             return $default;
         }
 
