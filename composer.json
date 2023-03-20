@@ -3,7 +3,10 @@
     "type": "project",
     "scripts": {
         "dev": "php -S localhost:8080 src/public/index.php",
-        "kill" :"bash kill.sh"
+        "kill" :"bash kill.sh",
+        "test": [
+            "Composer\\Config::disableProcessTimeout"
+        ]
     },
     "autoload": {
         "psr-4": {
