@@ -26,6 +26,16 @@ class BaseModel
         return $columns;
     }
 
+    public static function all()
+    {
+        $exists = Database::tableExists(self::$table);
+        if (!$exists) {
+            Database::createTable(self::$table, self::getColumns());
+        }
+
+        return Database::select(self::$table);
+    }
+
     public static function create(array $values = [])
     {
         $exists = Database::tableExists(self::$table);

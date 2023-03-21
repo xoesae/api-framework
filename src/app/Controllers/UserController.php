@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Requests\Request;
 use App\Models\BaseModel;
+use App\Routes\Response;
 
 class UserController
 {
@@ -13,9 +14,11 @@ class UserController
 
     public function index()
     {
-        echo '<br> Hello World! <br>';
+        http_response_code(200);
 
-        BaseModel::create([]);
+        $users = BaseModel::all();
+
+        Response::json($users);
     }
 
     public function store()
