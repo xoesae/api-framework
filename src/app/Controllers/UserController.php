@@ -28,7 +28,9 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
         
         $this->user->create($data);
-
-        echo '<br> Hello Post! <br>';
+        
+        $users = $this->user->all();
+        
+        Response::json($users);
     }
 }
