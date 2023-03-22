@@ -6,23 +6,6 @@ use Core\Utils\Arr;
 
 class Request
 {
-    private const CONTENT_TYPE_FORM_DATA = 'multipart/form-data';
-    private const CONTENT_TYPE_JSON = 'application/json';
-    private ?string $contentType;
-    private array $data;
-
-    public function __construct()
-    {
-        $contentType = $_SERVER['CONTENT_TYPE'] ?? null;
-        $this->contentType = $contentType ? explode(';', $_SERVER['CONTENT_TYPE'])[0] : null;
-
-        $this->data = match ($this->contentType) {
-            self::CONTENT_TYPE_FORM_DATA => $_POST,
-            self::CONTENT_TYPE_JSON => json_decode(file_get_contents('php://input'), true),
-            default => [],
-        };
-    }
-
     public static function getParsedUri(): array
     {
         return parse_url($_SERVER['REQUEST_URI']);
@@ -60,10 +43,5 @@ class Request
         }
 
         return $params;
-    }
-
-    public function all(): array
-    {
-        return $this->data;
     }
 }

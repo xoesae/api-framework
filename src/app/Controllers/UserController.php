@@ -23,7 +23,7 @@ class UserController extends Controller
 
     public function store()
     {
-        $data = (new Request())->all();
+        $data = (new Request())->all(); // TODO: fix this
 
         $data['password'] = Hash::make($data['password']);
         

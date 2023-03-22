@@ -59,4 +59,19 @@ class Model
         Database::insert($this->getTableName(), $values);
     }
 
+    public function find(int $id)
+    {
+        // TODO: Implement find() method.
+    }
+
+    public function update(array $values = [], int $id = null)
+    {
+        // TODO: Implement update() method.
+    }
+
+    public function delete(int $id = null)
+    {
+        // TODO: Implement delete() method.
+    }
+
 }
