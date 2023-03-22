@@ -2,27 +2,33 @@
 
 namespace App\Controllers;
 
-use App\Requests\Request;
-use App\Models\BaseModel;
-use App\Routes\Response;
+use App\Models\User;
+use Core\Controllers\Controller;
+use Core\Routes\Response;
+use Core\Requests\Request;
+use Core\Utils\Hash;
 
-class UserController
+class UserController extends Controller
 {
     public function __construct(
-        public Request $request = new Request(),
+        private User $user = new User(),
     ) {}
 
     public function index()
     {
-        http_response_code(200);
-
-        $users = BaseModel::all();
+        $users = $this->user->all();
 
         Response::json($users);
     }
 
     public function store()
     {
+        $data = (new Request())->all();
+
+        $data['password'] = Hash::make($data['password']);
+        
+        $this->user->create($data);
+
         echo '<br> Hello Post! <br>';
     }
 }

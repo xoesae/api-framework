@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Utils;
+namespace Core\Utils;
 
-class Env {
-    private const ENV_FILE_PATH = __DIR__ . '/../../../.env';
+class Env 
+{
+    private const ENV_FILE_PATH = __DIR__ . '/../../.env';
 
     public static function set(): void
     {

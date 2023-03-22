@@ -2,7 +2,8 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-use App\Utils\Env;
+use Core\Routes\Router;
+use Core\Utils\Env;
 
 # Register autoload
 require __DIR__ . '/../../vendor/autoload.php';
@@ -11,4 +12,4 @@ require __DIR__ . '/../../vendor/autoload.php';
 Env::set();
 
 # Run application
-(new \App\Routes\Router());
+(new Router());

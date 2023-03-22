@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Requests;
+namespace Core\Requests;
 
-use App\Utils\Arr;
+use Core\Utils\Arr;
 
 class Request
 {

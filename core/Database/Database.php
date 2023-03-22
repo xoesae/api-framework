@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Database;
-
+namespace Core\Database;
 
 use PDOException;
 
@@ -35,7 +34,7 @@ class Database extends Connect
                 return;
             }
 
-            $query = QueryBuilder::createTable();
+            $query = QueryBuilder::createTable($table, $columns);
             $pdo->beginTransaction();
             echo 'QUERY: ' . $query . '<br>';
             $statement = $pdo->prepare($query);
@@ -61,11 +60,18 @@ class Database extends Connect
             }
 
             $query = QueryBuilder::insert($table, $values);
+
+            foreach ($values as $key => $value) {
+                if (is_string($value) && $value !== 'DEFAULT')
+                    $values[$key] = "'" . $value . "'";
+            }
+
             $pdo->beginTransaction();
             $statement = $pdo->prepare($query);
-
-            $executed = $statement->execute();
+            
+            $executed = $statement->execute($values);
             $rowCount = $statement->rowCount();
+
 
             if ($executed && $rowCount > 0) {
                 $pdo->commit();

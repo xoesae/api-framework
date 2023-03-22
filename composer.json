@@ -11,7 +11,8 @@
     "autoload": {
         "psr-4": {
             "Cjuniordev\\ApiFramework\\": "src/",
-            "App\\": "src/app/"
+            "App\\": "src/app/",
+            "Core\\": "core/"
         }
     },
     "authors": [

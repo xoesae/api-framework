@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Database;
+namespace Core\Database;
 
 class QueryBuilder
 {
@@ -21,7 +21,7 @@ class QueryBuilder
     public static function insert(string $table, array $values = []): string
     {
         $columns = implode(', ', array_keys($values));
-        $values = implode(', ', array_values($values));
+        $values = implode(', ', array_map(fn () => '?', $values));
         $sql = "INSERT INTO " . $table . " (" . $columns . ") VALUES (" . $values . ");";
 
         return $sql;

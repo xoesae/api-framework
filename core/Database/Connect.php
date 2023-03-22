@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Database;
+namespace Core\Database;
 
-use App\Utils\Env;
+use Core\Utils\Env;
 use PDO;
 
 class Connect
