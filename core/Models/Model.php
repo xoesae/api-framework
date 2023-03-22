@@ -56,12 +56,6 @@ class Model
             Database::createTable($this->getTableName(), self::getColumns());
         }
 
-        $values = [
-            ...$values,
-            'id' => 'DEFAULT',
-            'created_at' => 'DEFAULT',
-        ];
-
         Database::insert($this->getTableName(), $values);
     }
 

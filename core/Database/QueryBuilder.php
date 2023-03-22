@@ -21,9 +21,9 @@ class QueryBuilder
     public static function insert(string $table, array $values = []): string
     {
         $columns = implode(', ', array_keys($values));
-        $values = implode(', ', array_map(fn () => '?', $values));
+        $values = implode(', ', array_map(fn ($value) => ":{$value}", array_keys($values)));
         $sql = "INSERT INTO " . $table . " (" . $columns . ") VALUES (" . $values . ");";
-
+        
         return $sql;
     }
 

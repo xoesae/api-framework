@@ -61,15 +61,14 @@ class Database extends Connect
 
             $query = QueryBuilder::insert($table, $values);
 
-            foreach ($values as $key => $value) {
-                if (is_string($value) && $value !== 'DEFAULT')
-                    $values[$key] = "'" . $value . "'";
-            }
-
             $pdo->beginTransaction();
             $statement = $pdo->prepare($query);
-            
-            $executed = $statement->execute($values);
+
+            foreach ($values as $key => $value) {
+                $statement->bindValue(":{$key}", $value);
+            }
+
+            $executed = $statement->execute();
             $rowCount = $statement->rowCount();
 
 
