@@ -10,10 +10,7 @@ class Route
         public string $uri,
         public string $action,
         public array $params = [],
-    )
-    {
-        $this->uri = self::sanitizeUri($uri);
-    }
+    ) {}
 
     /**
      * @throws Exception
