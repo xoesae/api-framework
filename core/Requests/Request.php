@@ -34,7 +34,7 @@ class Request
         $params = [];
 
         foreach ($paths as $position => $path) {
-            if (substr($path, 0, 1) === ':') {
+            if (str_starts_with($path, ':')) {
                 $params = [
                     ...$params,
                     $position => substr($path, 1),

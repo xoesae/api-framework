@@ -7,7 +7,7 @@ use Core\Utils\Arr;
 
 class MatchUri
 {
-    public function __invoke(array $routesToMatch, string $path)
+    public function __invoke(array $routesToMatch, string $path): array
     {
         $paths = Arr::explodeWithoutEmptyValues('/', $path);
         $params = [];
@@ -26,8 +26,8 @@ class MatchUri
             if (count($routePaths) !== count($paths)) {
                 continue;
             }
-            
-            if (($routePaths[0] === $paths[0]) && $route->hasParams()) {  
+
+            if (($routePaths[0] === $paths[0]) && $route->hasParams()) {
 
                 foreach ($route->params as $position => $param) {
                     $params = [

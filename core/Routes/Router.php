@@ -22,7 +22,7 @@ class Router
         $this->run();
     }
 
-    private function run()
+    private function run(): void
     {
         $this->uri = $_SERVER['REQUEST_URI'];
         $this->method = $_SERVER['REQUEST_METHOD'];
@@ -34,7 +34,7 @@ class Router
         }
     }
 
-    private function callRoute()
+    private function callRoute(): void
     {
         $routesToMatch = $this->routes[$this->method];
 
@@ -44,17 +44,17 @@ class Router
             throw new \Exception("Route {$this->uri} not found");
         }
 
-        return $route->action($params);
+        $route->action($params);
     }
 
-    private function loadRoutes()
+    private function loadRoutes(): void
     {
         require __DIR__ . '/../../src/routes/api.php';
     }
 
     # Registering routes
 
-    private function register(string $method, string $uri, string $action)
+    private function register(string $method, string $uri, string $action): void
     {
         $params = Request::getParams($uri);
         $route = new Route($uri, $action, $params);
@@ -62,7 +62,7 @@ class Router
         $this->routes[$method][] = $route;
     }
 
-    public function get(string $uri, string $action)
+    public function get(string $uri, string $action): void
     {
         $this->register('GET', $uri, $action);
     }
