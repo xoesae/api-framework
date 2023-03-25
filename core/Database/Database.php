@@ -2,6 +2,7 @@
 
 namespace Core\Database;
 
+use Exception;
 use PDOException;
 
 class Database extends Connect
@@ -13,13 +14,14 @@ class Database extends Connect
         try {
             $pdo = self::pdo();
             if (is_null($pdo)) {
-                return $result;
+                return false;
             }
 
             $query = "SELECT 1 FROM {$table} LIMIT 1";
             $result = $pdo->query($query);
             
         } catch (PDOException $e) {
+            echo $e->getMessage();
             return false;
         }
 
@@ -36,11 +38,10 @@ class Database extends Connect
 
             $query = QueryBuilder::createTable($table, $columns);
             $pdo->beginTransaction();
-            echo 'QUERY: ' . $query . '<br>';
             $statement = $pdo->prepare($query);
 
             $executed = $statement->execute();
-            $rowCount = count($statement->rowCount());
+            $rowCount = $statement->rowCount();
 
             if ($executed && $rowCount > 0) {
                 $pdo->commit();
@@ -124,6 +125,33 @@ class Database extends Connect
                 $result = $statement;
             }
         } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return $result;
+    }
+
+    public static function find(int $id, string $table, array $columns = ['*'])
+    {
+        $result = [];
+
+        try {
+            $pdo = self::pdo();
+            if (is_null($pdo)) {
+                return;
+            }
+
+            $clause = [
+                'id', '=', $id
+            ];
+
+            $query = QueryBuilder::selectWhere($table, $clause, $columns);
+
+            $statement = $pdo->prepare($query);
+            $statement->execute(); 
+
+            $result = $statement->fetch();
+        } catch (PDOException|Exception $e) {
             echo $e->getMessage();
         }
 

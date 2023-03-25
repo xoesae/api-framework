@@ -3,6 +3,7 @@
 namespace Core\Models;
 
 use Core\Database\Database;
+use Exception;
 
 class Model
 {
@@ -12,7 +13,7 @@ class Model
     public string $created_at = 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
     public string $updated_at = 'DATETIME NULL ON UPDATE CURRENT_TIMESTAMP';
 
-    protected function getTableName()
+    protected function getTableName(): string
     {
         if ($this->table === '') {
             $class =  get_class($this);
@@ -39,7 +40,7 @@ class Model
         return $columns;
     }
 
-    public function all()
+    public function all(): bool|array|null
     {
         $exists = Database::tableExists($this->getTableName());
         if (!$exists) {
@@ -49,7 +50,7 @@ class Model
         return Database::select($this->getTableName());
     }
 
-    public function create(array $values = [])
+    public function create(array $values = []): void
     {
         $exists = Database::tableExists($this->getTableName());
         if (!$exists) {
@@ -59,9 +60,17 @@ class Model
         Database::insert($this->getTableName(), $values);
     }
 
-    public function find(int $id)
+    /**
+     * @throws Exception
+     */
+    public function find(int $id, array $columns = ['*'])
     {
-        // TODO: Implement find() method.
+        $exists = Database::tableExists($this->getTableName());
+        if (!$exists) {
+            throw new Exception("Table {$this->getTableName()} does not exist");
+        }
+
+        return Database::find($id, $this->getTableName(), $columns);
     }
 
     public function update(array $values = [], int $id = null)

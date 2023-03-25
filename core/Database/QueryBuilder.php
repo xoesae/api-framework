@@ -2,6 +2,8 @@
 
 namespace Core\Database;
 
+use Exception;
+
 class QueryBuilder
 {
     public static function createTable(string $table, array $columns): string
@@ -22,9 +24,7 @@ class QueryBuilder
     {
         $columns = implode(', ', array_keys($values));
         $values = implode(', ', array_map(fn ($value) => ":{$value}", array_keys($values)));
-        $sql = "INSERT INTO " . $table . " (" . $columns . ") VALUES (" . $values . ");";
-        
-        return $sql;
+        return "INSERT INTO " . $table . " (" . $columns . ") VALUES (" . $values . ");";
     }
 
 
@@ -32,8 +32,28 @@ class QueryBuilder
     {
         $implodedColumns = implode(', ', $columns);
 
-        $sql = "SELECT " . $implodedColumns . " FROM " . $table . ";";
+        return "SELECT " . $implodedColumns . " FROM " . $table . ";";
+    }
 
-        return $sql;
+    public static function where(string $column, string $operator, string $value): string
+    {
+        return "WHERE " . $column . " " . $operator . " " . $value . ";";
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function selectWhere(string $table, array $clause, array $columns = ['*']): string
+    {
+        $select = self::select($table, $columns);
+        $select = str_replace(';', '', $select);
+
+        if (count($clause) < 3) {
+           throw new Exception('Invalid clause');
+        }
+
+        $where = self::where("{$table}.{$clause[0]}", $clause[1], $clause[2]);
+
+        return $select . ' ' . $where;
     }
 }
