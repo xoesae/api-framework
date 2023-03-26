@@ -69,4 +69,12 @@ class QueryBuilder
 
         return "UPDATE " . $table . " SET " . $set . " WHERE id = " . $id . ";";
     }
+
+    public static function delete(string $table, int $id): string
+    {
+        $sql = "DELETE FROM :table WHERE :table.id = :id;";
+
+        $sql = str_replace(':table', $table, $sql);
+        return str_replace(':id', $id, $sql);
+    }
 }

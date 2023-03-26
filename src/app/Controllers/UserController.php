@@ -61,4 +61,11 @@ class UserController extends Controller
         
         Response::json($user);
     }
+
+    public function delete(int $id)
+    {
+        $deleted = $this->user->delete($id);
+
+        Response::json($deleted);
+    }
 }

@@ -83,9 +83,14 @@ class Model
         return Database::update($this->getTableName(), $values, $id);
     }
 
-    public function delete(int $id = null)
+    public function delete(int $id)
     {
-        // TODO: Implement delete() method.
+        $exists = Database::tableExists($this->getTableName());
+        if (!$exists) {
+            throw new Exception("Table {$this->getTableName()} does not exist");
+        }
+
+        return Database::delete($this->getTableName(), $id);
     }
 
 }

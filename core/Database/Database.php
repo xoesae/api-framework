@@ -158,19 +158,21 @@ class Database extends Connect
         return $result;
     }
     
-    public static function update(string $table, array $values, int $id): void
+    public static function update(string $table, array $values, int $id): bool
     {
+        $result = false;
+
         try {
             $pdo = self::pdo();
             if (is_null($pdo)) {
-                return;
+                return false;
             }
 
             $query = QueryBuilder::update($table, $values, $id);
 
             $pdo->beginTransaction();
             $statement = $pdo->prepare($query);
-            
+
             foreach ($values as $key => $value) {
                 $statement->bindValue(":{$key}", $value);
             }
@@ -180,10 +182,44 @@ class Database extends Connect
 
             if ($executed && $rowCount > 0) {
                 $pdo->commit();
+                $result = true;
             }
             
         } catch (PDOException $e) {
             echo $e->getMessage();
         }
+
+        return $result;
     }
+
+    public static function delete(string $table, int $id): bool
+    {
+        $result = false;
+
+        try {
+            $pdo = self::pdo();
+            if (is_null($pdo)) {
+                return false;
+            }
+
+            $query = QueryBuilder::delete($table, $id);
+
+            $pdo->beginTransaction();
+            $statement = $pdo->prepare($query);
+    
+            $executed = $statement->execute();
+            $rowCount = $statement->rowCount();
+
+            if ($executed && $rowCount > 0) {
+                $pdo->commit();
+                $result = true;
+            }
+            
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return $result;
+    }
+
 }
