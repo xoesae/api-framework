@@ -6,7 +6,7 @@ use App\Models\User;
 use Core\Controllers\Controller;
 use Core\Database\Database;
 use Core\Routes\Response;
-use Core\Requests\Request;
+use Core\Requests\CustomRequest;
 use Core\Utils\Hash;
 use Exception;
 
@@ -38,7 +38,7 @@ class UserController extends Controller
 
     public function store()
     {
-        $data = (new Request())->all(); // TODO: fix this
+        $data = (new CustomRequest())->all(); // TODO: fix this
 
         $data['password'] = Hash::make($data['password']);
         
@@ -47,5 +47,18 @@ class UserController extends Controller
         $users = $this->user->all();
         
         Response::json($users);
+    }
+
+    public function update(int $id)
+    {
+        $data = (new CustomRequest())->all(); // TODO: fix this
+
+        $data['password'] = Hash::make($data['password']);
+        
+        $this->user->update($id, $data);
+        
+        $user = $this->user->find($id);
+        
+        Response::json($user);
     }
 }

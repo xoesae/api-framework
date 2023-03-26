@@ -71,4 +71,14 @@ class Router
     {
         $this->register('POST', $uri, $action);
     }
+
+    public function put(string $uri, string $action)
+    {
+        $this->register('PUT', $uri, $action);
+    }
+
+    public function delete(string $uri, string $action)
+    {
+        $this->register('DELETE', $uri, $action);
+    }
 }

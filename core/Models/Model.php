@@ -73,9 +73,14 @@ class Model
         return Database::find($id, $this->getTableName(), $columns);
     }
 
-    public function update(array $values = [], int $id = null)
+    public function update(int $id, array $values)
     {
-        // TODO: Implement update() method.
+        $exists = Database::tableExists($this->getTableName());
+        if (!$exists) {
+            throw new Exception("Table {$this->getTableName()} does not exist");
+        }
+
+        return Database::update($this->getTableName(), $values, $id);
     }
 
     public function delete(int $id = null)

@@ -157,4 +157,33 @@ class Database extends Connect
 
         return $result;
     }
+    
+    public static function update(string $table, array $values, int $id): void
+    {
+        try {
+            $pdo = self::pdo();
+            if (is_null($pdo)) {
+                return;
+            }
+
+            $query = QueryBuilder::update($table, $values, $id);
+
+            $pdo->beginTransaction();
+            $statement = $pdo->prepare($query);
+            
+            foreach ($values as $key => $value) {
+                $statement->bindValue(":{$key}", $value);
+            }
+
+            $executed = $statement->execute();
+            $rowCount = $statement->rowCount();
+
+            if ($executed && $rowCount > 0) {
+                $pdo->commit();
+            }
+            
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+    }
 }

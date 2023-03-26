@@ -56,4 +56,17 @@ class QueryBuilder
 
         return $select . ' ' . $where;
     }
+
+    public static function update(string $table, array $values, int $id): string
+    {
+        $formattedValues = [];
+    
+        foreach (array_keys($values) as $value) {
+            $formattedValues[] = $value . " = :{$value}";
+        }
+
+        $set = implode(', ', $formattedValues);
+
+        return "UPDATE " . $table . " SET " . $set . " WHERE id = " . $id . ";";
+    }
 }
