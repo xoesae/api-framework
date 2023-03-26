@@ -2,7 +2,9 @@
 
 namespace Core\Routes;
 
+use Core\Containers\Container;
 use Exception;
+use ReflectionMethod;
 
 class Route
 {
@@ -15,12 +17,12 @@ class Route
     /**
      * @throws Exception
      */
-    public function action(array $params = [])
+    public function action(array $uriParameters = [])
     {
         [$class, $method] = explode('@', $this->action);
         $class = 'App\\Controllers\\' . $class;
 
-        if (!(isset($method))) {
+        if (!isset($method)) {
             throw new Exception("Invalid action {$this->action}");
         }
 
@@ -32,8 +34,14 @@ class Route
             throw new Exception("Method $this->action not found");
         }
 
-        $object = new $class();
-        return $object->$method(...$params);
+        $container = Container::getInstance();
+        $object = $container->get($class);
+
+        $parameters = $container->resolveParameters($class, $method);
+
+        $parameters = array_merge($parameters, $uriParameters);
+
+        return $object->$method(...$parameters);
     }
 
     public function hasParams(): bool

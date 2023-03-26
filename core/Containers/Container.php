@@ -58,23 +58,32 @@ class Container
             return $reflected->newInstanceArgs($parameters);
         }
 
-        return $this->get($class);
+        return new $class();
     }
 
-    private function resolveParameters(ReflectionMethod $constructor): array
+    public function resolveParameters(string|ReflectionMethod $classOrContructor, string $method = null): array
     {
-        $parameters = $constructor->getParameters();
+        $reflectedMethod = is_string($classOrContructor) ? new ReflectionMethod($classOrContructor, $method) : $classOrContructor;
+
+        $parameters = $reflectedMethod->getParameters();
+
+        if (!count($parameters)) {
+            return [];
+        }
 
         try {
             $parameters = array_map(function ($parameter) {
                 $type = $parameter->getType();
                 $typeName = $type->getName();
-                return $this->get($typeName);
+
+                if (class_exists($typeName)) {
+                    return $this->get($typeName);
+                }
             }, $parameters);
         } catch (ReflectionException|Exception $e) {
             echo $e->getMessage();
         }
 
-        return $parameters;
+        return array_filter($parameters);
     }
 }

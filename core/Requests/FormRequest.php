@@ -2,16 +2,15 @@
 
 namespace Core\Requests;
 
-class CustomRequest extends Request
+class FormRequest extends Request
 {
     private const CONTENT_TYPE_FORM_DATA = 'multipart/form-data';
     private const CONTENT_TYPE_JSON = 'application/json';
     private ?string $contentType;
+    private array $rules = [];
+    private array $data = [];
 
-    public function __construct(
-        private array $rules = [],
-        private array $data = [],
-    )
+    public function __construct()
     {
         $contentType = $_SERVER['CONTENT_TYPE'] ?? null;
         $this->contentType = $contentType ? explode(';', $_SERVER['CONTENT_TYPE'])[0] : null;

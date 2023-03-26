@@ -6,14 +6,14 @@ use App\Models\User;
 use Core\Controllers\Controller;
 use Core\Database\Database;
 use Core\Routes\Response;
-use Core\Requests\CustomRequest;
+use Core\Requests\FormRequest;
 use Core\Utils\Hash;
 use Exception;
 
 class UserController extends Controller
 {
     public function __construct(
-        private User $user = new User(),
+        public User $user,
     ) {}
 
     /**
@@ -29,16 +29,16 @@ class UserController extends Controller
     /**
      * @throws Exception
      */
-    public function show(int $id)
+    public function show(FormRequest $request, int $id)
     {
         $user = $this->user->find($id);
 
         Response::json($user);
     }
 
-    public function store()
+    public function store(FormRequest $request)
     {
-        $data = (new CustomRequest())->all(); // TODO: fix this
+        $data = $request->all();
 
         $data['password'] = Hash::make($data['password']);
         
@@ -49,10 +49,10 @@ class UserController extends Controller
         Response::json($users);
     }
 
-    public function update(int $id)
+    public function update(FormRequest $request, int $id)
     {
-        $data = (new CustomRequest())->all(); // TODO: fix this
-
+        $data = $request->all();
+        
         $data['password'] = Hash::make($data['password']);
         
         $this->user->update($id, $data);
