@@ -7,7 +7,7 @@ use \ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 
-class Container // TODO: test this container
+class Container
 {
     public static Container $instance;
     public array $bindings = [];
@@ -32,7 +32,7 @@ class Container // TODO: test this container
     public function get(string $key): mixed
     {
         if (!isset($this->bindings[$key])) {
-            throw new Exception("Key {$key} is not bound in the container.");
+            $this->bind($key, $key);
         }
 
         return $this->resolver($this->bindings[$key]);
@@ -49,7 +49,7 @@ class Container // TODO: test this container
         $constructor = $reflected->getConstructor();
 
         if (is_null($constructor)) {
-            return $reflected->newInstance();
+            return new $class();
         }
 
         $parameters = $this->resolveParameters($constructor);
