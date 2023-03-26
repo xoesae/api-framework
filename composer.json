@@ -2,7 +2,7 @@
     "name": "cjuniordev/api-framework",
     "type": "project",
     "scripts": {
-        "dev": "php -S localhost:8080 src/public/index.php",
+        "dev": "php -d memory_limit=3072M -S localhost:8080 src/public/index.php",
         "kill" :"bash kill.sh",
         "test": [
             "Composer\\Config::disableProcessTimeout"
@@ -13,7 +13,10 @@
             "Cjuniordev\\ApiFramework\\": "src/",
             "App\\": "src/app/",
             "Core\\": "core/"
-        }
+        },
+        "files": [
+            "core/Helpers/dump.php"
+        ]
     },
     "authors": [
         {
