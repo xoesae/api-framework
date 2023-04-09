@@ -3,19 +3,37 @@
 namespace Core\Routes;
 
 use Core\Containers\Container;
+use Core\Controllers\Controller;
 use Exception;
-use ReflectionMethod;
 
 class Route
 {
-    private static string $separator = '@';
+    public static string $separator = '@';
     private static string $controllerNamespace = 'App\\Controllers\\';
+    public string $uri;
+    public array $params = [];
 
+    private Controller $controller;
+    private string $method;
+
+    /**
+     * @throws Exception
+     */
     public function __construct(
-        public string $uri,
-        public string $action,
-        public array $params = [],
-    ) {}
+        string $uri,
+        string $action,
+        array $params = [],
+    ) {
+        $this->uri = $uri;
+        $this->params = $params;
+
+        [$class, $method] = self::explodeAction($action);
+
+        self::validateAction($class, $method);
+
+        $this->controller = self::instanceController($class);
+        $this->method = $method;
+    }
 
     public static function getFullNamespaceControllerClass(string $class): string
     {
@@ -80,11 +98,9 @@ class Route
      */
     public function run(array $uriParameters = []): mixed
     {
-        [$class, $method] = self::explodeAction($this->action);
-
-        self::validateAction($class, $method);
-
-        $controller = self::instanceController($class);
+        $controller = $this->controller;
+        $class = get_class($controller);
+        $method = $this->method;
 
         $parameters = self::resolveMethodParameters($class, $method, $uriParameters);
 

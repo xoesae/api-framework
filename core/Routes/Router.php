@@ -69,7 +69,7 @@ class Router
     {
         if (self::isCalledByControllerGroup()) {
             $controllerNamespace = self::getControllerNamespace();
-            $action = $controllerNamespace . '@' . $action;
+            $action = $controllerNamespace . Route::$separator . $action;
         }
 
         $route = self::instanceRoute($uri, $action);
