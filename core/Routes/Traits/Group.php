@@ -4,7 +4,7 @@ namespace Core\Routes\Traits;
 
 use Core\Routes\Route;
 
-trait ControllerGroup
+trait Group
 {
     private static bool $isGroup = false;
     private static bool $isControllerGroup = false;

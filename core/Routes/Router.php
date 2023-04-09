@@ -3,15 +3,14 @@
 namespace Core\Routes;
 
 use Core\Requests\Request;
-use Core\Routes\Traits\ControllerGroup;
+use Core\Routes\Traits\Group;
 use Core\Routes\Traits\LoadRoutes;
 use Core\Routes\Traits\MatchUri;
-use Core\Utils\Arr;
 use Exception;
 
 class Router
 {
-    use LoadRoutes, MatchUri, ControllerGroup;
+    use LoadRoutes, MatchUri, Group;
 
     private string $uri = '';
     private string $method;
