@@ -1,23 +1,29 @@
 <?php
 
-namespace Core\Routes;
+namespace Core\Routes\Traits;
 
-use Core\Requests\Request;
+use Core\Routes\Route;
 use Core\Utils\Arr;
 
-class MatchUri
+trait MatchUri
 {
-    public function __invoke(array $routesToMatch, string $path): array
+    protected static ?Route $matchedRoute = null;
+    protected static bool $isMatched = false;
+
+    private static function endMatch(Route $route): void
+    {
+        self::$isMatched = true;
+        self::$matchedRoute = $route;
+    }
+
+    public static function matchUri(array $routesToMatch, string $path): array
     {
         $paths = Arr::explodeWithoutEmptyValues('/', $path);
         $params = [];
-        $matchedRoute = null;
-        $isMatched = false;
 
         foreach ($routesToMatch as $route) {
             if ($route->uri === $path) {
-                $isMatched = true;
-                $matchedRoute = $route;
+                self::endMatch($route);
                 break;
             }
 
@@ -27,7 +33,9 @@ class MatchUri
                 continue;
             }
 
-            if (($routePaths[0] === $paths[0]) && $route->hasParams()) {
+            $firstPathsAreEqual = $routePaths[0] === $paths[0];
+
+            if ($firstPathsAreEqual && $route->hasParams()) {
 
                 foreach ($route->params as $position => $param) {
                     $params = [
@@ -41,17 +49,12 @@ class MatchUri
                 $routeWithoutParams = implode('/', $routePaths);
 
                 if ($uriWithoutParams === $routeWithoutParams) {
-                    $isMatched = true;
-                    $matchedRoute = $route;
+                    self::endMatch($route);
                     break;
                 }
             }
         }
 
-        return [
-            $isMatched,
-            $matchedRoute,
-            $params,
-        ];
+        return $params;
     }
 }

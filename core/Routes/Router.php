@@ -3,13 +3,18 @@
 namespace Core\Routes;
 
 use Core\Requests\Request;
+use Core\Routes\Traits\LoadRoutes;
+use Core\Routes\Traits\MatchUri;
 use Core\Utils\Arr;
+use Exception;
 
 class Router
 {
+    use LoadRoutes, MatchUri;
+
     private string $uri = '';
     private string $method;
-    private array $routes = [
+    private static array $routes = [
         'GET' => [],
         'POST' => [],
         'PUT' => [],
@@ -29,56 +34,54 @@ class Router
 
         try {
             $this->callRoute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function callRoute(): void
     {
-        $routesToMatch = $this->routes[$this->method];
+        $routesToMatch = self::$routes[$this->method];
 
-        [$isMatched, $route, $params] = (new MatchUri)($routesToMatch, $this->uri);
+        $parameters = self::matchUri($routesToMatch, $this->uri);
 
-        if (!$isMatched) {
-            throw new \Exception("Route {$this->uri} not found");
+        if (!self::$isMatched) {
+            throw new Exception("Route {$this->uri} not found");
         }
 
-        $route->action($params);
-    }
-
-    private function loadRoutes(): void
-    {
-        require __DIR__ . '/../../src/routes/api.php';
+        self::$matchedRoute->run($parameters);
     }
 
     # Registering routes
 
-    private function register(string $method, string $uri, string $action): void
+    private static function addRoute(string $method, string $uri, string $action): void
     {
         $params = Request::getParams($uri);
         $route = new Route($uri, $action, $params);
 
-        $this->routes[$method][] = $route;
+        self::$routes[$method][] = $route;
     }
 
-    public function get(string $uri, string $action): void
+    public static function get(string $uri, string $action): void
     {
-        $this->register('GET', $uri, $action);
+        self::addRoute('GET', $uri, $action);
     }
 
-    public function post(string $uri, string $action)
+    public static function post(string $uri, string $action): void
     {
-        $this->register('POST', $uri, $action);
+        self::addRoute('POST', $uri, $action);
     }
 
-    public function put(string $uri, string $action)
+    public static function put(string $uri, string $action): void
     {
-        $this->register('PUT', $uri, $action);
+        self::addRoute('PUT', $uri, $action);
     }
 
-    public function delete(string $uri, string $action)
+    public static function delete(string $uri, string $action): void
     {
-        $this->register('DELETE', $uri, $action);
+        self::addRoute('DELETE', $uri, $action);
     }
 }

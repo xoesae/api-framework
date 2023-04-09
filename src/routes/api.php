@@ -1,7 +1,10 @@
 <?php
 
-$this->get('/users', 'UserController@index');
-$this->post('/user', 'UserController@store');
-$this->get('/user/:id', 'UserController@show');
-$this->put('/user/:id', 'UserController@update');
-$this->delete('/user/:id', 'UserController@delete');
+use Core\Routes\Router;
+
+// User Routes
+Router::get('/users', 'UserController@index');
+Router::post('/user', 'UserController@store');
+Router::get('/user/:id', 'UserController@show');
+Router::put('/user/:id', 'UserController@update');
+Router::delete('/user/:id', 'UserController@delete');
