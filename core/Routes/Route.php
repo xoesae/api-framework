@@ -8,22 +8,37 @@ use ReflectionMethod;
 
 class Route
 {
+    private static string $separator = '@';
+    private static string $controllerNamespace = 'App\\Controllers\\';
+
     public function __construct(
         public string $uri,
         public string $action,
         public array $params = [],
     ) {}
 
+    public static function getFullNamespaceControllerClass(string $class): string
+    {
+        return self::$controllerNamespace . $class;
+    }
+
+    public static function explodeAction(string $action): array
+    {
+        [$class, $method] = explode(self::$separator, $action);
+        $class = self::getFullNamespaceControllerClass($class);
+
+        return [$class, $method];
+    }
+
     /**
      * @throws Exception
      */
-    public function action(array $uriParameters = [])
+    public static function validateAction(string $class, string $method): void
     {
-        [$class, $method] = explode('@', $this->action);
-        $class = 'App\\Controllers\\' . $class;
+        $formattedAction = $class . self::$separator . $method;
 
         if (!isset($method)) {
-            throw new Exception("Invalid action {$this->action}");
+            throw new Exception("Invalid action {$formattedAction}");
         }
 
         if (!class_exists($class)) {
@@ -31,17 +46,43 @@ class Route
         }
 
         if (!method_exists($class, $method)) {
-            throw new Exception("Method $this->action not found");
+            throw new Exception("Method {$formattedAction} not found");
         }
+    }
 
+    /**
+     * @throws Exception
+     */
+    public static function instanceController(string $class): mixed
+    {
         $container = Container::getInstance();
-        $object = $container->get($class);
+
+        return $container->get($class);
+    }
+
+    public static function resolveMethodParameters(string $class, string $method, array $uriParameters = []): array
+    {
+        $container = Container::getInstance();
 
         $parameters = $container->resolveParameters($class, $method);
 
-        $parameters = array_merge($parameters, $uriParameters);
+        return array_merge($parameters, $uriParameters);
+    }
 
-        return $object->$method(...$parameters);
+    /**
+     * @throws Exception
+     */
+    public function run(array $uriParameters = []): mixed
+    {
+        [$class, $method] = self::explodeAction($this->action);
+
+        self::validateAction($class, $method);
+
+        $controller = self::instanceController($class);
+
+        $parameters = self::resolveMethodParameters($class, $method, $uriParameters);
+
+        return $controller->$method(...$parameters);
     }
 
     public function hasParams(): bool
