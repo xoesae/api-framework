@@ -82,14 +82,14 @@ class Database extends Connect
         }
     }
 
-    public static function select(string $table, $columns = ['*'])
+    public static function select(string $table, $columns = ['*']): array|false
     {
         $result = [];
 
         try {
             $pdo = self::pdo();
             if (is_null($pdo)) {
-                return;
+                return false;
             }
 
             $query = QueryBuilder::select($table, $columns);

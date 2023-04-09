@@ -7,11 +7,13 @@ use Exception;
 
 class Model
 {
-    public array $protectedVars = ['table'];
+    public array $protectedVars = ['table', 'hiddenColumns'];
     public string $table = '';
     public string $id = 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY';
     public string $created_at = 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
     public string $updated_at = 'DATETIME NULL ON UPDATE CURRENT_TIMESTAMP';
+
+    public array $hiddenColumns = [];
 
     protected function getTableName(): string
     {
@@ -40,6 +42,26 @@ class Model
         return $columns;
     }
 
+    public function getColumnNames(bool $withHidden = false): array
+    {
+        $columns = array_keys($this->getColumns());
+
+        if ($withHidden) {
+            return $columns;
+        }
+
+        $hiddenColumns = $this->hiddenColumns;
+
+        foreach ($columns as $key => $column) {
+            if (in_array($column, $hiddenColumns)) {
+                unset($columns[$key]);
+            }
+        }
+
+        return $columns;
+    }
+
+
     public function all(): bool|array|null
     {
         $exists = Database::tableExists($this->getTableName());
@@ -47,7 +69,9 @@ class Model
             Database::createTable($this->getTableName(), self::getColumns());
         }
 
-        return Database::select($this->getTableName());
+        $columns = $this->getColumnNames();
+
+        return Database::select($this->getTableName(), $columns);
     }
 
     public function create(array $values = []): void
@@ -73,7 +97,10 @@ class Model
         return Database::find($id, $this->getTableName(), $columns);
     }
 
-    public function update(int $id, array $values)
+    /**
+     * @throws Exception
+     */
+    public function update(int $id, array $values): bool
     {
         $exists = Database::tableExists($this->getTableName());
         if (!$exists) {
@@ -83,7 +110,10 @@ class Model
         return Database::update($this->getTableName(), $values, $id);
     }
 
-    public function delete(int $id)
+    /**
+     * @throws Exception
+     */
+    public function delete(int $id): bool
     {
         $exists = Database::tableExists($this->getTableName());
         if (!$exists) {
