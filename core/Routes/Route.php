@@ -19,7 +19,13 @@ class Route
 
     public static function getFullNamespaceControllerClass(string $class): string
     {
-        return self::$controllerNamespace . $class;
+        $hasFullNamespace = str_contains($class, self::$controllerNamespace);
+
+        if (!$hasFullNamespace) {
+            $class = self::$controllerNamespace . $class;
+        }
+
+        return $class;
     }
 
     public static function explodeAction(string $action): array
