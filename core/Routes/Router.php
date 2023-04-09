@@ -2,6 +2,7 @@
 
 namespace Core\Routes;
 
+use Closure;
 use Core\Requests\Request;
 use Core\Routes\Traits\Group;
 use Core\Routes\Traits\LoadRoutes;
@@ -70,7 +71,7 @@ class Router
     private static function addRoute(string $method, string $uri, string $action): void
     {
         if (self::$isGroup) {
-            $action = self::resolveRoute($action);
+            self::resolveGroupRoute($uri, $action);
         }
 
        try {
@@ -104,7 +105,7 @@ class Router
 
     # Grouping routes
 
-    public static function group(array $options, \Closure $routes): void
+    public static function group(array $options, Closure $routes): void
     {
         self::initGroup($options);
 
@@ -113,7 +114,7 @@ class Router
         self::endGroup();
     }
 
-    public static function controller(string $controller, \Closure $routes): void
+    public static function controller(string $controller, Closure $routes): void
     {
         self::group([
             'controller' => $controller,

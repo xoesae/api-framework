@@ -9,6 +9,7 @@ trait Group
     private static bool $isGroup = false;
     private static bool $isControllerGroup = false;
     private static ?string $controllerNamespace = null;
+    private static ?string $prefix = null;
 
     public static function isCalledByControllerGroup(): bool
     {
@@ -36,8 +37,14 @@ trait Group
     {
         self::$isGroup = true;
 
-        $controller = $options['controller'] ?? null;
+        // Prefix
+        $prefix = $options['prefix'] ?? null;
+        if ($prefix) {
+            self::$prefix = str_ends_with($prefix, '/') ? substr($prefix, 0, -1) : $prefix;
+        }
 
+        // Controller
+        $controller = $options['controller'] ?? null;
         if ($controller) {
             self::initControllerGroup($controller);
         }
@@ -46,17 +53,27 @@ trait Group
     private static function endGroup(): void
     {
         self::$isGroup = false;
+
+        // Prefix
+        self::$prefix = null;
+
+        // Controller
         self::endControllerGroup();
     }
 
-    public static function resolveRoute(string $action): string
+    public static function resolveGroupRoute(string &$uri, string &$action): void
     {
         if (self::$isControllerGroup) {
             $controllerNamespace = self::getControllerNamespace();
             $action = $controllerNamespace . Route::$separator . $action;
         }
 
-        return $action;
-    }
+        $prefix = self::$prefix;
 
+        if ($prefix) {
+            $uri = str_starts_with($uri, '/') ? $uri : "/{$uri}";
+
+            $uri = $prefix . $uri;
+        }
+    }
 }
