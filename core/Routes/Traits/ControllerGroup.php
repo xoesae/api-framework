@@ -2,8 +2,11 @@
 
 namespace Core\Routes\Traits;
 
+use Core\Routes\Route;
+
 trait ControllerGroup
 {
+    private static bool $isGroup = false;
     private static bool $isControllerGroup = false;
     private static ?string $controllerNamespace = null;
 
@@ -28,4 +31,32 @@ trait ControllerGroup
     {
         return self::$controllerNamespace;
     }
+
+    private static function initGroup(array $options): void
+    {
+        self::$isGroup = true;
+
+        $controller = $options['controller'] ?? null;
+
+        if ($controller) {
+            self::initControllerGroup($controller);
+        }
+    }
+
+    private static function endGroup(): void
+    {
+        self::$isGroup = false;
+        self::endControllerGroup();
+    }
+
+    public static function resolveRoute(string $action): string
+    {
+        if (self::$isControllerGroup) {
+            $controllerNamespace = self::getControllerNamespace();
+            $action = $controllerNamespace . Route::$separator . $action;
+        }
+
+        return $action;
+    }
+
 }

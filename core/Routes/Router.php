@@ -56,6 +56,9 @@ class Router
         self::$matchedRoute->run($parameters);
     }
 
+    /**
+     * @throws Exception
+     */
     private static function instanceRoute(string $uri, string $action): Route
     {
         $params = Request::getParams($uri);
@@ -67,14 +70,17 @@ class Router
 
     private static function addRoute(string $method, string $uri, string $action): void
     {
-        if (self::isCalledByControllerGroup()) {
-            $controllerNamespace = self::getControllerNamespace();
-            $action = $controllerNamespace . Route::$separator . $action;
+        if (self::$isGroup) {
+            $action = self::resolveRoute($action);
         }
 
-        $route = self::instanceRoute($uri, $action);
+       try {
+           $route = self::instanceRoute($uri, $action);
 
-        self::$routes[$method][] = $route;
+           self::$routes[$method][] = $route;
+       } catch (Exception $e) {
+           echo $e->getMessage();
+       }
     }
 
     public static function get(string $uri, string $action): void
@@ -97,12 +103,21 @@ class Router
         self::addRoute('DELETE', $uri, $action);
     }
 
-    public static function controller(string $controller, \Closure $routes): void
+    # Grouping routes
+
+    public static function group(array $options, \Closure $routes): void
     {
-        self::initControllerGroup($controller);
+        self::initGroup($options);
 
         $routes();
 
-        self::endControllerGroup();
+        self::endGroup();
+    }
+
+    public static function controller(string $controller, \Closure $routes): void
+    {
+        self::group([
+            'controller' => $controller,
+        ], $routes);
     }
 }
