@@ -2,79 +2,71 @@
 
 namespace Core\Database;
 
-use Exception;
+use Core\Database\Traits\DeleteBuilder;
+use Core\Database\Traits\GetBuilder;
+use Core\Database\Traits\InsertBuilder;
+use Core\Database\Traits\UpdateBuilder;
 
-class QueryBuilder
+class QueryBuilder extends Connect
 {
-    public static function createTable(string $table, array $columns): string
+    use GetBuilder, InsertBuilder, UpdateBuilder, DeleteBuilder;
+
+    private string $table;
+    private string $select = '*';
+    private string $where = '';
+    private array $params = [];
+
+    public function __construct(string $table) {
+        $this->table = $table;
+    }
+
+    public function select(string $columns): static
     {
-        $formattedColumns = [];
-        foreach ($columns as $column => $type) {
-            $formattedColumns[] = $column . ' ' . $type;
+        $this->select = $columns;
+        return $this;
+    }
+
+    public function where(string $conditions, array $params): static
+    {
+        $this->where = " WHERE {$conditions}";
+        $this->params = array_merge($this->params, $params);
+
+        return $this;
+    }
+
+    public function execute(): bool
+    {
+        $result = false;
+        $pdo = self::pdo();
+        $sql = "";
+
+        if ($this->isInserting) {
+           $sql = $this->insertHandler();
         }
 
-        $sql = "CREATE TABLE IF NOT EXISTS " . $table . " (";
-        $sql .= implode(', ', $formattedColumns);
-        $sql .= ");";
-
-        return $sql;
-    }
-
-    public static function insert(string $table, array $values = []): string
-    {
-        $columns = implode(', ', array_keys($values));
-        $values = implode(', ', array_map(fn ($value) => ":{$value}", array_keys($values)));
-        return "INSERT INTO " . $table . " (" . $columns . ") VALUES (" . $values . ");";
-    }
-
-
-    public static function select(string $table, array $columns = ['*']): string
-    {
-        $implodedColumns = implode(', ', $columns);
-
-        return "SELECT " . $implodedColumns . " FROM " . $table . ";";
-    }
-
-    public static function where(string $column, string $operator, string $value): string
-    {
-        return "WHERE " . $column . " " . $operator . " " . $value . ";";
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function selectWhere(string $table, array $clause, array $columns = ['*']): string
-    {
-        $select = self::select($table, $columns);
-        $select = str_replace(';', '', $select);
-
-        if (count($clause) < 3) {
-           throw new Exception('Invalid clause');
+        if ($this->isUpdating) {
+            $sql = $this->updateHandler();
         }
 
-        $where = self::where("{$table}.{$clause[0]}", $clause[1], $clause[2]);
-
-        return $select . ' ' . $where;
-    }
-
-    public static function update(string $table, array $values, int $id): string
-    {
-        $formattedValues = [];
-    
-        foreach (array_keys($values) as $value) {
-            $formattedValues[] = $value . " = :{$value}";
+        if ($this->isDeleting) {
+            $sql = $this->deleteHandler();
         }
 
-        $set = implode(', ', $formattedValues);
+        $pdo->beginTransaction();
+        $statement = $pdo->prepare($sql);
 
-        return "UPDATE " . $table . " SET " . $set . " WHERE id = " . $id . ";";
-    }
+        $executed = $statement->execute($this->params);
+        $rowCount = $statement->rowCount();
 
-    public static function delete(string $table, int $id): string
-    {
-        $sql = "DELETE FROM :table WHERE :table.id = :id;";
+        if ($executed && $rowCount > 0) {
+            $pdo->commit();
+            $result = true;
+        }
 
-        $sql = str_replace(':table', $table, $sql);
-        return str_replace(':id', $id, $sql);
+        $this->isInserting = false;
+        $this->isUpdating = false;
+        $this->isDeleting = false;
+
+        return $result;
     }
 }

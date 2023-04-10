@@ -2,224 +2,43 @@
 
 namespace Core\Database;
 
-use Exception;
+use Core\Database\Traits\CreateTableBuilder;
 use PDOException;
 
 class Database extends Connect
 {
+    use CreateTableBuilder;
+
     public static function tableExists(string $table): bool
     {
         $result = false;
 
-        try {
-            $pdo = self::pdo();
-            if (is_null($pdo)) {
-                return false;
-            }
-
-            $query = "SELECT 1 FROM {$table} LIMIT 1";
-            $result = $pdo->query($query);
-            
-        } catch (PDOException $e) {
-            echo $e->getMessage();
-            return false;
-        }
+        $pdo = self::pdo();
+        $sql = "SELECT 1 FROM {$table} LIMIT 1";
+        $result = $pdo->query($sql);
 
         return $result !== false;
     }
 
-    public static function createTable(string $table, array $columns)
-    {
-        try {
-            $pdo = self::pdo();
-            if (is_null($pdo)) {
-                return;
-            }
-
-            $query = QueryBuilder::createTable($table, $columns);
-            $pdo->beginTransaction();
-            $statement = $pdo->prepare($query);
-
-            $executed = $statement->execute();
-            $rowCount = $statement->rowCount();
-
-            if ($executed && $rowCount > 0) {
-                $pdo->commit();
-            }
-            
-        } catch (PDOException $e) {
-            echo $e->getMessage();
-        }
-    }
-
-    public static function insert(string $table, array $values = [])
-    {
-        try {
-            $pdo = self::pdo();
-            if (is_null($pdo)) {
-                return;
-            }
-
-            $query = QueryBuilder::insert($table, $values);
-
-            $pdo->beginTransaction();
-            $statement = $pdo->prepare($query);
-
-            foreach ($values as $key => $value) {
-                $statement->bindValue(":{$key}", $value);
-            }
-
-            $executed = $statement->execute();
-            $rowCount = $statement->rowCount();
-
-
-            if ($executed && $rowCount > 0) {
-                $pdo->commit();
-            }
-            
-        } catch (PDOException $e) {
-            echo $e->getMessage();
-        }
-    }
-
-    public static function select(string $table, $columns = ['*']): array|false
-    {
-        $result = [];
-
-        try {
-            $pdo = self::pdo();
-            if (is_null($pdo)) {
-                return false;
-            }
-
-            $query = QueryBuilder::select($table, $columns);
-            $statement = $pdo->prepare($query);
-            $statement->execute(); 
-
-            $result = $statement->fetchAll();
-        } catch (PDOException $e) {
-            echo $e->getMessage();
-        }
-
-        return $result;
-    }
-
-    public function query(string $query, $data = [])
-    {
-        $result = [];
-
-        try {
-            $pdo = self::pdo();
-            if (is_null($pdo)) {
-                return;
-            }
-
-            $pdo->beginTransaction();
-            $statement = $pdo->prepare($query);
-
-            $executed = $statement->execute($data);
-            $rowCount = $statement->rowCount();
-
-            if ($executed && $rowCount > 0) {
-                $pdo->commit();
-                $result = $statement;
-            }
-        } catch (PDOException $e) {
-            echo $e->getMessage();
-        }
-
-        return $result;
-    }
-
-    public static function find(int $id, string $table, array $columns = ['*'])
-    {
-        $result = [];
-
-        try {
-            $pdo = self::pdo();
-            if (is_null($pdo)) {
-                return;
-            }
-
-            $clause = [
-                'id', '=', $id
-            ];
-
-            $query = QueryBuilder::selectWhere($table, $clause, $columns);
-
-            $statement = $pdo->prepare($query);
-            $statement->execute(); 
-
-            $result = $statement->fetch();
-        } catch (PDOException|Exception $e) {
-            echo $e->getMessage();
-        }
-
-        return $result;
-    }
-    
-    public static function update(string $table, array $values, int $id): bool
+    public static function createTable(string $table, array $columns): bool
     {
         $result = false;
 
-        try {
-            $pdo = self::pdo();
-            if (is_null($pdo)) {
-                return false;
-            }
+        $pdo = self::pdo();
 
-            $query = QueryBuilder::update($table, $values, $id);
+        $sql = self::createTable($table, $columns);
 
-            $pdo->beginTransaction();
-            $statement = $pdo->prepare($query);
+        $pdo->beginTransaction();
+        $statement = $pdo->prepare($sql);
 
-            foreach ($values as $key => $value) {
-                $statement->bindValue(":{$key}", $value);
-            }
+        $executed = $statement->execute();
+        $rowCount = $statement->rowCount();
 
-            $executed = $statement->execute();
-            $rowCount = $statement->rowCount();
-
-            if ($executed && $rowCount > 0) {
-                $pdo->commit();
-                $result = true;
-            }
-            
-        } catch (PDOException $e) {
-            echo $e->getMessage();
+        if ($executed && $rowCount > 0) {
+            $pdo->commit();
+            $result = true;
         }
 
         return $result;
     }
-
-    public static function delete(string $table, int $id): bool
-    {
-        $result = false;
-
-        try {
-            $pdo = self::pdo();
-            if (is_null($pdo)) {
-                return false;
-            }
-
-            $query = QueryBuilder::delete($table, $id);
-
-            $pdo->beginTransaction();
-            $statement = $pdo->prepare($query);
-    
-            $executed = $statement->execute();
-            $rowCount = $statement->rowCount();
-
-            if ($executed && $rowCount > 0) {
-                $pdo->commit();
-                $result = true;
-            }
-            
-        } catch (PDOException $e) {
-            echo $e->getMessage();
-        }
-
-        return $result;
-    }
-
 }

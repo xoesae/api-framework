@@ -3,6 +3,7 @@
 namespace Core\Models;
 
 use Core\Database\Database;
+use Core\Database\QueryBuilder;
 use Exception;
 
 class Model
@@ -70,8 +71,11 @@ class Model
         }
 
         $columns = $this->getColumnNames();
+        $columns = implode(', ', $columns);
 
-        return Database::select($this->getTableName(), $columns);
+        $builder = new QueryBuilder($this->getTableName());
+
+        return $builder->select($columns)->get();
     }
 
     public function create(array $values = []): void
@@ -81,20 +85,34 @@ class Model
             Database::createTable($this->getTableName(), self::getColumns());
         }
 
-        Database::insert($this->getTableName(), $values);
+        $builder = new QueryBuilder($this->getTableName());
+
+        $builder->insert($values)->execute();
     }
 
     /**
      * @throws Exception
      */
-    public function find(int $id, array $columns = ['*'])
+    public function find(int $id, array $columns = ['*']): bool|array
     {
         $exists = Database::tableExists($this->getTableName());
         if (!$exists) {
             throw new Exception("Table {$this->getTableName()} does not exist");
         }
 
-        return Database::find($id, $this->getTableName(), $columns);
+        $builder = new QueryBuilder($this->getTableName());
+        $columns = implode(', ', $columns);
+
+        $result = $builder
+            ->select($columns)
+            ->where('id = :id',  ['id' => $id])
+            ->get();
+
+        if (is_array($result) && count($result) >= 1) {
+            return $result[0];
+        }
+
+        return $result;
     }
 
     /**
@@ -107,7 +125,12 @@ class Model
             throw new Exception("Table {$this->getTableName()} does not exist");
         }
 
-        return Database::update($this->getTableName(), $values, $id);
+        $builder = new QueryBuilder($this->getTableName());
+
+        return $builder
+            ->update($values)
+            ->where('id = :id',  ['id' => $id])
+            ->execute();
     }
 
     /**
@@ -120,7 +143,12 @@ class Model
             throw new Exception("Table {$this->getTableName()} does not exist");
         }
 
-        return Database::delete($this->getTableName(), $id);
+        $builder = new QueryBuilder($this->getTableName());
+
+        return $builder
+            ->delete()
+            ->where('id = :id',  ['id' => $id])
+            ->execute();
     }
 
 }

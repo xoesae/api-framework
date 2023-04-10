@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Models\User;
 use Core\Controllers\Controller;
-use Core\Database\Database;
+use Core\Database\QueryBuilder;
 use Core\Routes\Response;
 use Core\Requests\FormRequest;
 use Core\Utils\Hash;
@@ -49,6 +49,9 @@ class UserController extends Controller
         Response::json($users);
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(FormRequest $request, int $id)
     {
         $data = $request->all();
@@ -56,12 +59,15 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
         
         $this->user->update($id, $data);
-        
+
         $user = $this->user->find($id);
         
         Response::json($user);
     }
 
+    /**
+     * @throws Exception
+     */
     public function delete(int $id)
     {
         $deleted = $this->user->delete($id);

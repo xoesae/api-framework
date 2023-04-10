@@ -4,6 +4,7 @@ namespace Core\Database;
 
 use Core\Utils\Env;
 use PDO;
+use PDOException;
 
 class Connect
 {
@@ -51,7 +52,7 @@ class Connect
         }
     }
 
-    private static function create()
+    private static function create(): void
     {
         if (!is_null(self::$pdo)) {
             self::$pdo->query("
@@ -64,7 +65,7 @@ class Connect
         }
     }
 
-    protected static function pdo()
+    protected static function pdo(): PDO
     {
         self::$DB_HOST = Env::get('DB_HOST', '127.0.0.1');
         self::$DB_PORT = Env::get('DB_PORT', '3306');
