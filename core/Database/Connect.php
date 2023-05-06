@@ -8,14 +8,14 @@ use PDOException;
 
 class Connect
 {
-    public static $DB_HOST;
-    public static $DB_PORT;
-    public static $DB_NAME;
-    public static $DB_USER;
-    public static $DB_PASSWORD;
-    public static $BD_DRIVER = 'mysql';
-    public static $DB_CHARSET = 'UTF8';
-    public static $DB_COLLATE = 'utf8_general_ci';
+    public static string $DB_HOST;
+    public static string $DB_PORT;
+    public static string $DB_NAME;
+    public static string $DB_USER;
+    public static ?string $DB_PASSWORD;
+    public static string $BD_DRIVER = 'mysql';
+    public static string $DB_CHARSET = 'UTF8';
+    public static string $DB_COLLATE = 'utf8_general_ci';
     public static ?PDO $pdo = null;
 
     private static function getConnectionString(): string
@@ -29,6 +29,8 @@ class Connect
 
     protected static function connect(): PDO
     {
+        $pdo = null;
+
         try {
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -44,12 +46,11 @@ class Connect
             $pdo->setAttribute(PDO::ATTR_PERSISTENT, true);
             $pdo->setAttribute(PDO::ATTR_TIMEOUT, 300000);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-            return $pdo;
-
         } catch (PDOException $e) {
             echo $e->getMessage();
         }
+
+        return $pdo;
     }
 
     private static function create(): void
