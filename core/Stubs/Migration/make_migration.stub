@@ -1,0 +1,10 @@
+<?php
+
+use Core\Database\Migrations\Migration;
+use Core\Database\Migrations\Schema;
+
+Migration::create('{{ table }}', function (Schema $schema) {
+    $schema->increments('id');
+    $schema->string('created_at');
+    $schema->string('updated_at');
+});

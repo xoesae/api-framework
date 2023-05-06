@@ -5,6 +5,7 @@
         "dev": "php -d memory_limit=3072M -S localhost:8080 src/public/index.php",
         "kill" :"bash kill.sh",
         "migrate": "php core/Database/Migrations/handler.php",
+        "make": "php core/Stubs/make.php",
         "test": [
             "Composer\\Config::disableProcessTimeout"
         ]
