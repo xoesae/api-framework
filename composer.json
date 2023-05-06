@@ -4,6 +4,7 @@
     "scripts": {
         "dev": "php -d memory_limit=3072M -S localhost:8080 src/public/index.php",
         "kill" :"bash kill.sh",
+        "migrate": "php core/Database/Migrations/handler.php",
         "test": [
             "Composer\\Config::disableProcessTimeout"
         ]
@@ -12,7 +13,8 @@
         "psr-4": {
             "Cjuniordev\\ApiFramework\\": "src/",
             "App\\": "src/app/",
-            "Core\\": "core/"
+            "Core\\": "core/",
+            "Database\\": "src/database/"
         },
         "files": [
             "core/Helpers/dump.php"
