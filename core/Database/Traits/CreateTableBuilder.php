@@ -4,7 +4,7 @@ namespace Core\Database\Traits;
 
 trait CreateTableBuilder
 {
-    public static function createTable(string $table, array $columns): string
+    private static function createTableBuilder(string $table, array $columns): string
     {
         $formattedColumns = [];
         foreach ($columns as $column => $type) {
@@ -13,6 +13,6 @@ trait CreateTableBuilder
 
         $implodedFormattedColumns = implode(', ', $formattedColumns);
 
-        return "CREATE TABLE IF NOT EXISTS {$table} ({$implodedFormattedColumns});";
+        return "CREATE TABLE {$table} ({$implodedFormattedColumns});";
     }
 }

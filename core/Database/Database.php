@@ -3,7 +3,6 @@
 namespace Core\Database;
 
 use Core\Database\Traits\CreateTableBuilder;
-use PDOException;
 
 class Database extends Connect
 {
@@ -26,7 +25,7 @@ class Database extends Connect
 
         $pdo = self::pdo();
 
-        $sql = self::createTable($table, $columns);
+        $sql = self::createTableBuilder($table, $columns);
 
         $pdo->beginTransaction();
         $statement = $pdo->prepare($sql);
