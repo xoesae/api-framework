@@ -3,6 +3,7 @@
 namespace Core\Database;
 
 use Core\Database\Traits\CreateTableBuilder;
+use PDOException;
 
 class Database extends Connect
 {
@@ -10,11 +11,14 @@ class Database extends Connect
 
     public static function tableExists(string $table): bool
     {
-        $result = false;
-
         $pdo = self::pdo();
         $sql = "SELECT 1 FROM {$table} LIMIT 1";
-        $result = $pdo->query($sql);
+
+        try {
+            $result = $pdo->query($sql);
+        } catch (PDOException $e) {
+            return false;
+        }
 
         return $result !== false;
     }
