@@ -18,7 +18,6 @@ The api-framework is 100% developed with vanilla php.
 composer install
 ```
 
-
 ## Usage example
 
 ### Routes
@@ -74,9 +73,37 @@ public function show(FormRequest $request, int $id)
 }
 ```
 
+### Migrations
+
+To create a migration, run:
+
+```sh
+composer make migration table_name
+```
+
+and you will have something like this:
+
+```php
+<?php
+
+use Core\Database\Migrations\Migration;
+use Core\Database\Migrations\Schema;
+
+Migration::create('table_name', function (Schema $schema) {
+    $schema->increments('id');
+    $schema->string('created_at');
+    $schema->string('updated_at');
+});
+````
+now, to run the migration, run:
+
+```sh
+composer migrate
+```
+
 ### Models
 
-To have access to the database, it is possible through the model. To create a model, just create a class that extends `Core\Models\Model` and defines its columns and table name, if you don't define the table name, it will be defined as the class name in lower case with suffix.
+To have access to the database, it is possible through the model. To create a model, just create a class that extends `Core\Models\Model` if you don't define the table name, it will be defined as the class name in lower case with suffix.
 
 Example:
 
@@ -87,14 +114,47 @@ use Core\Models\Model;
 
 class User extends Model
 {
-    public string $name = 'VARCHAR(255) NOT NULL';
-    public string $email = 'VARCHAR(255) NOT NULL';
-    public string $password = 'VARCHAR(255) NOT NULL';
+    
 }
 ```
 
 In this case, the name of table is `users`.
 
+### Factories
+
+To create a factory, run:
+
+```sh
+composer make factory ModelName
+```
+
+and you will have something like this:
+
+```php
+<?php
+
+namespace Factories;
+
+use App\Models\ModelName;
+use Core\Database\Factories\Factory;
+
+class ModelNameFactory extends Factory
+{
+    protected string $class = ModelName::class;
+
+    public function definition(): array
+    {
+        return [];
+    }
+}
+```
+
+to use the factory, you can use the `create` method:
+
+```php
+$factory = ModelNameFactory();
+$factory->create();
+```
 
 ## Development setup
 
