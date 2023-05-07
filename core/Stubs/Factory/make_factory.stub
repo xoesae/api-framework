@@ -1,0 +1,16 @@
+<?php
+
+namespace Factories;
+
+use App\Models\{{ model }};
+use Core\Database\Factories\Factory;
+
+class {{ class }} extends Factory
+{
+    protected string $class = {{ model }}::class;
+
+    public function definition(): array
+    {
+        return [];
+    }
+}

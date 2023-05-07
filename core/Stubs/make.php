@@ -2,6 +2,7 @@
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+use Core\Stubs\Factory\CreateNewFactory;
 use Core\Stubs\Migration\CreateNewMigration;
 
 $args = $argv;
@@ -26,6 +27,21 @@ if ($typeOfMake === 'migration') {
 
     (new CreateNewMigration())($table);
     echo "Migration created successfully!\n";
+
+    return;
+}
+
+
+if ($typeOfMake === 'factory') {
+    $modelName = array_shift($args);
+
+    if (is_null($modelName)) {
+        echo "You need to specify the name of the model. Example: make migration User\n";
+        return;
+    }
+
+    (new CreateNewFactory())($modelName);
+    echo "Factory created successfully!\n";
 
     return;
 }
