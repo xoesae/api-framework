@@ -6,8 +6,8 @@ use Core\Stubs\MakeCopyStub;
 
 class CreateNewMigration extends MakeCopyStub
 {
-    const stubDir = __DIR__ . '/make_migration.stub';
-    const newDir = __DIR__ . '/../../../src/database/migrations/';
+    const STUB_DIR = __DIR__ . '/make_migration.stub';
+    const NEW_DIR = __DIR__ . '/../../../src/database/migrations/';
 
     private static function getNameOfNewFile(string $table): string
     {
@@ -19,9 +19,9 @@ class CreateNewMigration extends MakeCopyStub
     public function __invoke(string $table): bool
     {
         $newFileName = self::getNameOfNewFile($table);
-        $newFileDir = self::getNewDir(self::newDir, $newFileName);
+        $newFileDir = self::getNewDir(self::NEW_DIR, $newFileName);
 
-        $content = self::getStubContent(self::stubDir);
+        $content = self::getStubContent(self::STUB_DIR);
 
         $content = self::replaceStubContent($content, [
             "{{ table }}" => $table
