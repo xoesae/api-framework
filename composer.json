@@ -15,7 +15,8 @@
             "Cjuniordev\\ApiFramework\\": "src/",
             "App\\": "src/app/",
             "Core\\": "core/",
-            "Database\\": "src/database/"
+            "Database\\": "src/database/",
+            "Factories\\": "src/database/factories/"
         },
         "files": [
             "core/Helpers/dump.php"
@@ -28,7 +29,7 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.1",
         "ext-pdo": "*"
     }
 }
