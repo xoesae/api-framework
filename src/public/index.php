@@ -2,6 +2,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+use Core\Routes\Response;
 use Core\Routes\Router;
 use Core\Utils\Env;
 
@@ -12,4 +13,8 @@ require __DIR__ . '/../../vendor/autoload.php';
 Env::set();
 
 # Run application
-(new Router());
+try {
+    (new Router());
+} catch (Exception $e) {
+    Response::json($e->getMessage(), 500);
+}
