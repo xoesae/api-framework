@@ -11,6 +11,8 @@ The api-framework is 100% developed with vanilla php.
 - Easy Controllers
 - Easy Models
 - Easy Routes
+- Migrations
+- Factories
 
 ## Installation
 
