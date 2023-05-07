@@ -7,6 +7,8 @@ use Core\Database\Database;
 
 class Migration
 {
+    const MIGRATIONS_DIR = __DIR__ . '/../../../src/database/migrations';
+
     public static array $tables = [];
 
     public function __construct()
@@ -14,9 +16,21 @@ class Migration
         self::loadMigrations();
     }
 
+    private static function getFullMigrationDir(string $migration): string
+    {
+        return self::MIGRATIONS_DIR . '/' . $migration;
+    }
+
     private static function loadMigrations(): void
     {
-        require __DIR__ . '/../../../src/database/migrations/migrations.php';
+        $migrations = scandir(self::MIGRATIONS_DIR);
+
+        // Remove . and .. from array
+        $migrations = array_diff($migrations, ['.', '..']);
+
+        foreach ($migrations as $migration) {
+            require self::getFullMigrationDir($migration);
+        }
     }
 
     private static function getSchema(Closure $closure): Schema
@@ -44,6 +58,6 @@ class Migration
             }
         }
 
-        echo '\nMigrations ran successfully!\n';
+        echo PHP_EOL . 'Migrations ran successfully!' . PHP_EOL;
     }
 }

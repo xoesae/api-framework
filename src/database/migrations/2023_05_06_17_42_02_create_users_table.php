@@ -11,8 +11,3 @@ Migration::create('users', function (Schema $schema) {
     $schema->string('created_at');
     $schema->string('updated_at');
 });
-
-Migration::create('companies', function (Schema $schema) {
-    $schema->increments('id');
-    $schema->string('name');
-});
