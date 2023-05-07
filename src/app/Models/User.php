@@ -4,11 +4,15 @@ namespace App\Models;
 
 use Core\Models\Model;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property $created_at
+ * @property $updated_at
+ */
 class User extends Model
 {
-    public string $name = 'VARCHAR(255) NOT NULL';
-    public string $email = 'VARCHAR(255) NOT NULL';
-    public string $password = 'VARCHAR(255) NOT NULL';
-
-    public array $hiddenColumns = ['password'];
+    protected array $hidden = ['password'];
 }

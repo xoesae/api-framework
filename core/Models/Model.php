@@ -2,19 +2,30 @@
 
 namespace Core\Models;
 
+use AllowDynamicProperties;
 use Core\Database\Database;
 use Core\Database\QueryBuilder;
+use Core\Routes\Response;
 use Exception;
 
+#[AllowDynamicProperties]
 class Model
 {
-    public array $protectedVars = ['table', 'hiddenColumns'];
-    public string $table = '';
-    public string $id = 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY';
-    public string $created_at = 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
-    public string $updated_at = 'DATETIME NULL ON UPDATE CURRENT_TIMESTAMP';
+    use Traits\TableDoesNotExistsException;
 
-    public array $hiddenColumns = [];
+    protected string $table = '';
+    protected array $hidden = [];
+
+    protected function cast(array $properties): static
+    {
+        $object = new static();
+
+        foreach ($properties as $key => $value) {
+            $object->$key = $value;
+        }
+
+        return $object;
+    }
 
     protected function getTableName(): string
     {
@@ -29,76 +40,41 @@ class Model
         return $this->table;
     }
 
-    public function getColumns(): array
+    public function all(): array
     {
-        $columns = get_class_vars(get_class($this));
-        unset($columns['protectedVars']);
+        $this->validateTableExists();
 
-        foreach ($columns as $key => $column) {
-            if (in_array($key, $this->protectedVars)) {
-                unset($columns[$key]);
-            }
-        }
-        
-        return $columns;
-    }
-
-    public function getColumnNames(bool $withHidden = false): array
-    {
-        $columns = array_keys($this->getColumns());
-
-        if ($withHidden) {
-            return $columns;
-        }
-
-        $hiddenColumns = $this->hiddenColumns;
-
-        foreach ($columns as $key => $column) {
-            if (in_array($column, $hiddenColumns)) {
-                unset($columns[$key]);
-            }
-        }
-
-        return $columns;
-    }
-
-
-    public function all(): bool|array|null
-    {
-        $exists = Database::tableExists($this->getTableName());
-        if (!$exists) {
-            Database::createTable($this->getTableName(), self::getColumns());
-        }
-
-        $columns = $this->getColumnNames();
-        $columns = implode(', ', $columns);
+        $columns = '*';
 
         $builder = new QueryBuilder($this->getTableName());
 
-        return $builder->select($columns)->get();
+        $result = $builder->select($columns)->get();
+
+        if (! is_array($result)) {
+            Response::json(["Error while fetching data from {$this->getTableName()}"], 500);
+        }
+
+        foreach ($result as $key => $value) {
+            $result[$key] = $this->cast($value);
+        }
+
+        return $result;
     }
 
     public function create(array $values = []): void
     {
-        $exists = Database::tableExists($this->getTableName());
-        if (!$exists) {
-            Database::createTable($this->getTableName(), self::getColumns());
-        }
+        $this->validateTableExists();
 
         $builder = new QueryBuilder($this->getTableName());
 
         $builder->insert($values)->execute();
+
+        // TODO: return the created object
     }
 
-    /**
-     * @throws Exception
-     */
-    public function find(int $id, array $columns = ['*']): bool|array
+    public function find(int $id, array $columns = ['*']): static
     {
-        $exists = Database::tableExists($this->getTableName());
-        if (!$exists) {
-            throw new Exception("Table {$this->getTableName()} does not exist");
-        }
+        $this->validateTableExists();
 
         $builder = new QueryBuilder($this->getTableName());
         $columns = implode(', ', $columns);
@@ -108,22 +84,22 @@ class Model
             ->where('id = :id',  ['id' => $id])
             ->get();
 
-        if (is_array($result) && count($result) >= 1) {
-            return $result[0];
+        if (! is_array($result)) {
+            throw new Exception("Not found");
         }
 
-        return $result;
+        $response = $result;
+
+        if (count($result) >= 1) {
+            $response = (array) $result[0];
+        }
+
+        return $this->cast($response);
     }
 
-    /**
-     * @throws Exception
-     */
     public function update(int $id, array $values): bool
     {
-        $exists = Database::tableExists($this->getTableName());
-        if (!$exists) {
-            throw new Exception("Table {$this->getTableName()} does not exist");
-        }
+        $this->validateTableExists();
 
         $builder = new QueryBuilder($this->getTableName());
 
@@ -131,17 +107,13 @@ class Model
             ->update($values)
             ->where('id = :id',  ['id' => $id])
             ->execute();
+
+        // TODO: return the updated object
     }
 
-    /**
-     * @throws Exception
-     */
     public function delete(int $id): bool
     {
-        $exists = Database::tableExists($this->getTableName());
-        if (!$exists) {
-            throw new Exception("Table {$this->getTableName()} does not exist");
-        }
+        $this->validateTableExists();
 
         $builder = new QueryBuilder($this->getTableName());
 
@@ -150,5 +122,4 @@ class Model
             ->where('id = :id',  ['id' => $id])
             ->execute();
     }
-
 }
