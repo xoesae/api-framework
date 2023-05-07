@@ -85,7 +85,7 @@ class Model
             ->get();
 
         if (! is_array($result)) {
-            throw new Exception("Not found");
+            Response::json(["Not found"], 404);
         }
 
         $response = $result;
