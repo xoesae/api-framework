@@ -180,11 +180,11 @@ The default port is :8080
 
 Carlos Junior – [@cjuniordev](https://twitter.com/cjuniordev)
 
-[https://github.com/cjuniordev/api-framework](https://github.com/cjuniordev/api-framework)
+[https://github.com/xoesae/api-framework](https://github.com/xoesae/api-framework)
 
 ## Contributing
 
-1. Fork it (<https://github.com/cjuniordev/api-framework/fork>)
+1. Fork it (<https://github.com/xoesae/api-framework/fork>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3. Commit your changes (`git commit -am 'Add some fooBar'`)
 4. Push to the branch (`git push origin feature/fooBar`)
